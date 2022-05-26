@@ -68,6 +68,7 @@ public class XxlConfListenerFactory {
         if (key==null || key.trim().length()==0) {
             return;
         }
+        // 调用每个key独有的listener的 onChange 方法
         List<XxlConfListener> keyListeners = keyListenerRepository.get(key);
         if (keyListeners!=null && keyListeners.size()>0) {
             for (XxlConfListener listener : keyListeners) {
@@ -78,6 +79,7 @@ public class XxlConfListenerFactory {
                 }
             }
         }
+        // 调用公有的listener的 onChange 方法
         if (noKeyConfListener.size() > 0) {
             for (XxlConfListener confListener: noKeyConfListener) {
                 try {

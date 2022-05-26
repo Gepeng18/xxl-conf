@@ -36,11 +36,13 @@ public class XxlConfLocalCacheConf {
 
         Map<String, String> mirrorConfData = XxlConfMirrorConf.readConfMirror();
 
+        // 1、将mirror的配置文件中的key从远程再读一遍
         Map<String, String> remoteConfData = null;
         if (mirrorConfData!=null && mirrorConfData.size()>0) {
             remoteConfData = XxlConfRemoteConf.find(mirrorConfData.keySet());
         }
 
+        // 2、将mirror的原始内容和从远程读的内容全部放进preConfData，远程的会把原始内容覆盖
         if (mirrorConfData!=null && mirrorConfData.size()>0) {
             preConfData.putAll(mirrorConfData);
         }
@@ -54,6 +56,7 @@ public class XxlConfLocalCacheConf {
         }
 
         // refresh thread
+        // 创建一个守护线程，不停地从admin读取数据，更新
         refreshThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -112,6 +115,7 @@ public class XxlConfLocalCacheConf {
 
     /**
      * refresh Cache And Mirror, with real-time minitor
+     * 守护线程不停地从admin获key对应的value，如果不相等就更新本地缓存
      */
     private static void refreshCacheAndMirror() throws InterruptedException{
 
@@ -171,10 +175,7 @@ public class XxlConfLocalCacheConf {
 
     /**
      * set conf (invoke listener)
-     *
-     * @param key
-     * @param value
-     * @return
+     * 设置到本地缓存中
      */
     private static void set(String key, String value, SET_TYPE optType) {
         localCacheRepository.put(key, new CacheNode(value));

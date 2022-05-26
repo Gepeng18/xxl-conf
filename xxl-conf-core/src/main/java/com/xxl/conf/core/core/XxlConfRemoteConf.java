@@ -38,7 +38,7 @@ public class XxlConfRemoteConf {
         XxlConfRemoteConf.accessToken = accessToken;
 
 
-        // parse
+        // parse，将传入的adminAddressArr按照","进行分割
         XxlConfRemoteConf.adminAddressArr = new ArrayList<>();
         if (adminAddress.contains(",")) {
             XxlConfRemoteConf.adminAddressArr.add(adminAddress);
@@ -80,6 +80,7 @@ public class XxlConfRemoteConf {
 
     /**
      * find
+     * 遍历所有的adminAddress的conf请求接口，如果有一个返回“data”，就返回
      *
      * @param keys
      * @return

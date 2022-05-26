@@ -467,13 +467,13 @@ public class XxlConfNodeServiceImpl implements IXxlConfNodeService, Initializing
 							for (XxlConfNodeMsg message: messageList) {
 								readedMessageIds.add(message.getId());
 
-
 								// sync file
 								setFileConfData(message.getEnv(), message.getKey(), message.getValue());
 							}
 						}
 
 						// clean old message;
+						// 这个我理解干了两件事，保留30秒内的数据，清除所有写入Server本地文件的数据
 						if ( (System.currentTimeMillis()/1000) % confBeatTime ==0) {
 							xxlConfNodeMsgDao.cleanMessage(confBeatTime);
 							readedMessageIds.clear();
@@ -524,6 +524,7 @@ public class XxlConfNodeServiceImpl implements IXxlConfNodeService, Initializing
 						int pagesize = 1000;
 						List<String> confDataFileList = new ArrayList<>();
 
+						// 遍历所有配置，每次读1000条数据
 						List<XxlConfNode> confNodeList = xxlConfNodeDao.pageList(offset, pagesize, null, null, null);
 						while (confNodeList!=null && confNodeList.size()>0) {
 
@@ -597,6 +598,7 @@ public class XxlConfNodeServiceImpl implements IXxlConfNodeService, Initializing
 	}
 
 	// set
+	// 将value值写入本地文件，并且恢复阻塞的数据
 	private String setFileConfData(String env, String key, String value){
 
 		// fileName
@@ -639,6 +641,7 @@ public class XxlConfNodeServiceImpl implements IXxlConfNodeService, Initializing
 		filterChildPath(new File(confDataFilePath), confDataFileList);
 	}
 
+	// 删除所有不在confDataFileList中的文件
 	public void filterChildPath(File parentPath, final List<String> confDataFileList){
 		if (!parentPath.exists() || parentPath.list()==null || parentPath.list().length==0) {
 			return;

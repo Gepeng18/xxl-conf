@@ -50,6 +50,8 @@ public class BeanRefreshXxlConfListener implements XxlConfListener {
 
     // key : object-field[]
     private static Map<String, List<BeanField>> key2BeanField = new ConcurrentHashMap<String, List<BeanField>>();
+
+    // 就是将key:beanField 保存起来
     public static void addBeanField(String key, BeanField beanField){
         List<BeanField> beanFieldList = key2BeanField.get(key);
         if (beanFieldList == null) {

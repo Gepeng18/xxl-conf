@@ -71,7 +71,7 @@ public class XxlConfFactory extends InstantiationAwareBeanPostProcessorAdapter
 
 
 	// ---------------------- post process / xml、annotation ----------------------
-
+	// 启动的时候，先获取所有加了XxlConf注解的bean，对他们的字段进行取值，然后赋值
 	@Override
 	public boolean postProcessAfterInstantiation(final Object bean, final String beanName) throws BeansException {
 
@@ -83,9 +83,11 @@ public class XxlConfFactory extends InstantiationAwareBeanPostProcessorAdapter
 				@Override
 				public void doWith(Field field) throws IllegalArgumentException, IllegalAccessException {
 					if (field.isAnnotationPresent(XxlConf.class)) {
+						// 获取加了XxlConf注解的field名
 						String propertyName = field.getName();
 						XxlConf xxlConf = field.getAnnotation(XxlConf.class);
 
+						// 获取XxlConf注解中的配置key和value
 						String confKey = xxlConf.value();
 						String confValue = XxlConfClient.get(confKey, xxlConf.defaultValue());
 
@@ -153,6 +155,10 @@ public class XxlConfFactory extends InstantiationAwareBeanPostProcessorAdapter
 
 	/**
 	 * refresh bean with xxl conf (fieldNames)
+	 * 这里主要是将IOC中的容器的值进行赋值
+	 * 1、根据beanName从IOC中找到bean
+	 * 2、从bean中找到对应的字段
+	 * 3、对该字段进行赋值
 	 */
 	public static void refreshBeanField(final BeanRefreshXxlConfListener.BeanField beanField, final String value, Object bean){
 		if (bean == null) {
@@ -175,6 +181,7 @@ public class XxlConfFactory extends InstantiationAwareBeanPostProcessorAdapter
 			}
 		}
 
+		// 将IOC容器中的值修改了吗
 		// refresh field: set or field
 		if (propertyDescriptor!=null && propertyDescriptor.getWriteMethod() != null) {
 			beanWrapper.setPropertyValue(beanField.getProperty(), value);	// support mult data types
