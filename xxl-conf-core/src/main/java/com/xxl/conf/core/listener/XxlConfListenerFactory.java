@@ -25,6 +25,8 @@ public class XxlConfListenerFactory {
 
     /**
      * add listener and first invoke + watch
+     * 1、将listener加入到本地map中，key是否为空，分为了两个map，其中key为空的map表示所有的key都执行该listener
+     * 2、如果传入的key不为空，则先执行一遍该listener
      *
      * @param key   empty will listener all key
      * @param xxlConfListener
@@ -41,6 +43,7 @@ public class XxlConfListenerFactory {
         } else {
 
             // first use, invoke and watch this key
+            // 如果添加进来的是关于某个key的，则先执行一遍
             try {
                 String value = XxlConfClient.get(key);
                 xxlConfListener.onChange(key, value);

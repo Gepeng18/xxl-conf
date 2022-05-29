@@ -66,6 +66,9 @@ public class XxlConfNodeServiceImpl implements IXxlConfNodeService, Initializing
 		return false;
 	}
 
+	/**
+	 * 找到若干个=appname,=loginEnv,like %key% 的 key 和 value 等信息
+	 */
 	@Override
 	public Map<String,Object> pageList(int offset,
 									   int pagesize,
@@ -122,9 +125,11 @@ public class XxlConfNodeServiceImpl implements IXxlConfNodeService, Initializing
 
 		//xxlConfZKManager.delete(loginEnv, key);
 		xxlConfNodeDao.delete(loginEnv, key);
+		// length表示保留几条最新的，这里为0表示全部删除
 		xxlConfNodeLogDao.deleteTimeout(loginEnv, key, 0);
 
-		// conf msg
+		// write conf msg
+		// 将msg写入db
 		sendConfMsg(loginEnv, key, null);
 
 		return ReturnT.SUCCESS;
@@ -141,6 +146,11 @@ public class XxlConfNodeServiceImpl implements IXxlConfNodeService, Initializing
 		xxlConfNodeMsgDao.add(confNodeMsg);
 	}
 
+	/**
+	 * 1、将key，value，env，appname都写到db中
+	 * 2、向logTable中写入一条日志
+	 * 3、写入message中
+	 */
 	@Override
 	public ReturnT<String> add(XxlConfNode xxlConfNode, XxlConfUser loginUser, String loginEnv) {
 
@@ -195,6 +205,7 @@ public class XxlConfNodeServiceImpl implements IXxlConfNodeService, Initializing
 
 		// add node
 		//xxlConfZKManager.set(xxlConfNode.getEnv(), xxlConfNode.getKey(), xxlConfNode.getValue());
+		// 将key，value，env，appname都写到db中
 		xxlConfNodeDao.insert(xxlConfNode);
 
 		// node log
@@ -212,6 +223,12 @@ public class XxlConfNodeServiceImpl implements IXxlConfNodeService, Initializing
 		return ReturnT.SUCCESS;
 	}
 
+	/**
+	 * 1、更新title和value 当=env and = key
+	 * 2、向logTable中写入一条日志
+	 * 3、从logTable中删除，只留10条日志
+	 * 3、写入message中
+	 */
 	@Override
 	public ReturnT<String> update(XxlConfNode xxlConfNode, XxlConfUser loginUser, String loginEnv) {
 
@@ -324,8 +341,9 @@ public class XxlConfNodeServiceImpl implements IXxlConfNodeService, Initializing
 	}*/
 
 
-	// ---------------------- rest api ----------------------
-
+	/**
+	 * 从文件中读取数据
+	 */
 	@Override
 	public ReturnT<Map<String, String>> find(String accessToken, String env, List<String> keys) {
 
@@ -376,7 +394,8 @@ public class XxlConfNodeServiceImpl implements IXxlConfNodeService, Initializing
 	@Override
 	public DeferredResult<ReturnT<String>> monitor(String accessToken, String env, List<String> keys) {
 
-		// init
+		// 初始化一个result，超时结果为success，
+		// DeferredResult的使用方法为 调用setResult()方法时立即向浏览器发出响应；未调用时请求被挂起
 		DeferredResult deferredResult = new DeferredResult(confBeatTime * 1000L, new ReturnT<>(ReturnT.SUCCESS_CODE, "Monitor timeout, no key updated."));
 
 		// valid
@@ -405,8 +424,6 @@ public class XxlConfNodeServiceImpl implements IXxlConfNodeService, Initializing
 
 		// monitor by client
 		for (String key: keys) {
-
-
 			// invalid key, pass
 			if (key==null || key.trim().length()<4 || key.trim().length()>100
 					|| !RegexUtil.matches(RegexUtil.abc_number_line_point_pattern, key) ) {
@@ -414,8 +431,10 @@ public class XxlConfNodeServiceImpl implements IXxlConfNodeService, Initializing
 			}
 
 			// monitor each key
+			// 获取env+key对应的fileName
 			String fileName = parseConfDataFileName(env, key);
 
+			// Map<fileName, List<DeferredResult>>
 			List<DeferredResult> deferredResultList = confDeferredResultMap.get(fileName);
 			if (deferredResultList == null) {
 				deferredResultList = new ArrayList<>();
@@ -451,10 +470,17 @@ public class XxlConfNodeServiceImpl implements IXxlConfNodeService, Initializing
 
 	private Map<String, List<DeferredResult>> confDeferredResultMap = new ConcurrentHashMap<>();
 
+	/**
+	 * 1、同步了所有改变过的key对应的value到文件中（被改变过的key存储在msg表中）
+	 * 2、同步了所有的key对应的value到文件中（key存储在conf表中）
+	 */
 	public void startThead() throws Exception {
 
 		/**
-		 * brocast conf-data msg, sync to file, for "add、update、delete"
+		 * broadcast conf-data msg, sync to file, for "add、update、delete"
+		 * 1、将db中的msg写入文件
+		 * 2、将confDeferredResultMap中的fileName进行删除，并且将value中的DeferredResult都设置为success
+		 * 3、清除所有不在conf表中的本地文件
 		 */
 		executorService.execute(new Runnable() {
 			@Override
@@ -462,7 +488,7 @@ public class XxlConfNodeServiceImpl implements IXxlConfNodeService, Initializing
 				while (!executorStoped) {
 					try {
 						// new message, filter readed
-						List<XxlConfNodeMsg> messageList = xxlConfNodeMsgDao.findMsg(readedMessageIds);
+						List<XxlConfNodeMsg> messageList = xxlConfNodeMsgDao.findMsgExclude(readedMessageIds);
 						if (messageList!=null && messageList.size()>0) {
 							for (XxlConfNodeMsg message: messageList) {
 								readedMessageIds.add(message.getId());
@@ -473,7 +499,7 @@ public class XxlConfNodeServiceImpl implements IXxlConfNodeService, Initializing
 						}
 
 						// clean old message;
-						// 这个我理解干了两件事，保留30秒内的数据，清除所有写入Server本地文件的数据
+						// 这个我理解干了两件事，保留30秒内的数据，清除readedMessageIds
 						if ( (System.currentTimeMillis()/1000) % confBeatTime ==0) {
 							xxlConfNodeMsgDao.cleanMessage(confBeatTime);
 							readedMessageIds.clear();
@@ -506,6 +532,7 @@ public class XxlConfNodeServiceImpl implements IXxlConfNodeService, Initializing
 				while (!executorStoped) {
 
 					// align to beattime
+					// 对齐时间
 					try {
 						long sleepSecond = confBeatTime - (System.currentTimeMillis()/1000)%confBeatTime;
 						if (sleepSecond>0 && sleepSecond<confBeatTime) {
@@ -522,9 +549,11 @@ public class XxlConfNodeServiceImpl implements IXxlConfNodeService, Initializing
 						// sync registry-data, db + file
 						int offset = 0;
 						int pagesize = 1000;
+
+						// 这里存储了所有conf的配置文件
 						List<String> confDataFileList = new ArrayList<>();
 
-						// 遍历所有配置，每次读1000条数据
+						// 1、遍历所有conf配置，每次读1000条数据
 						List<XxlConfNode> confNodeList = xxlConfNodeDao.pageList(offset, pagesize, null, null, null);
 						while (confNodeList!=null && confNodeList.size()>0) {
 
@@ -543,7 +572,8 @@ public class XxlConfNodeServiceImpl implements IXxlConfNodeService, Initializing
 						}
 
 						// clean old registry-data file
-						cleanFileConfData(confDataFileList);
+						// 清除所有不在conf表中的本地文件
+						cleanFileConfDataExclude(confDataFileList);
 
                         logger.debug(">>>>>>>>>>> xxl-conf, sync totel conf data success, sync conf count = {}", confDataFileList.size());
 					} catch (Exception e) {
@@ -574,7 +604,11 @@ public class XxlConfNodeServiceImpl implements IXxlConfNodeService, Initializing
 
 	// ---------------------- file opt ----------------------
 
-	// get
+	/**
+	 * 	get
+	 * 	1、读取env+key对应的文件
+	 * 	2、从文件中获取value
+	 */
 	public String getFileConfData(String env, String key){
 
 		// fileName
@@ -597,14 +631,20 @@ public class XxlConfNodeServiceImpl implements IXxlConfNodeService, Initializing
 		return fileName;
 	}
 
-	// set
-	// 将value值写入本地文件，并且恢复阻塞的数据
+	/**
+	 * set
+	 * 1、文件存在且相等，直接返回文件地址
+	 * 2、写入文件
+	 * 3、将confDeferredResultMap中的fileName进行删除，并且将value中的DeferredResult都设置为success
+ 	 */
+
 	private String setFileConfData(String env, String key, String value){
 
 		// fileName
 		String confFileName = parseConfDataFileName(env, key);
 
 		// valid repeat update
+		// 1、文件存在且相等，直接返回文件地址
 		Properties existProp = PropUtil.loadFileProp(confFileName);
 		if (existProp != null
 				&& value!=null
@@ -614,6 +654,7 @@ public class XxlConfNodeServiceImpl implements IXxlConfNodeService, Initializing
 		}
 
 		// write
+		// 2、写入文件
 		Properties prop = new Properties();
 		if (value == null) {
 			prop.setProperty("value-deleted", "true");
@@ -624,7 +665,8 @@ public class XxlConfNodeServiceImpl implements IXxlConfNodeService, Initializing
 		PropUtil.writeFileProp(prop, confFileName);
 		logger.info(">>>>>>>>>>> xxl-conf, setFileConfData: confFileName={}, value={}", confFileName, value);
 
-		// brocast monitor client
+		// broadcast monitor client
+		// 3、将confDeferredResultMap中的fileName进行删除，并且将value中的DeferredResult都设置为success，这时候阻塞的monitor会返回
 		List<DeferredResult> deferredResultList = confDeferredResultMap.get(confFileName);
 		if (deferredResultList != null) {
 			confDeferredResultMap.remove(confFileName);
@@ -637,12 +679,12 @@ public class XxlConfNodeServiceImpl implements IXxlConfNodeService, Initializing
 	}
 
 	// clean
-	public void cleanFileConfData(List<String> confDataFileList){
-		filterChildPath(new File(confDataFilePath), confDataFileList);
+	public void cleanFileConfDataExclude(List<String> confDataFileList){
+		filterChildPathExclude(new File(confDataFilePath), confDataFileList);
 	}
 
 	// 删除所有不在confDataFileList中的文件
-	public void filterChildPath(File parentPath, final List<String> confDataFileList){
+	public void filterChildPathExclude(File parentPath, final List<String> confDataFileList){
 		if (!parentPath.exists() || parentPath.list()==null || parentPath.list().length==0) {
 			return;
 		}
@@ -655,7 +697,7 @@ public class XxlConfNodeServiceImpl implements IXxlConfNodeService, Initializing
 			}
 			if (childFile.isDirectory()) {
 				if (parentPath.listFiles()!=null && parentPath.listFiles().length>0) {
-					filterChildPath(childFile, confDataFileList);
+					filterChildPathExclude(childFile, confDataFileList);
 				} else {
 					childFile.delete();
 				}

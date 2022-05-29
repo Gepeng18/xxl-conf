@@ -19,6 +19,9 @@ public class XxlConfMirrorConf {
 
     private static String mirrorfile = null;
 
+    /**
+     *  赋值mirrorFile
+     */
     public static void init(String mirrorfileParam){
         // valid
         if (mirrorfileParam==null || mirrorfileParam.trim().length()==0) {

@@ -22,6 +22,9 @@ public class XxlConfRemoteConf {
 
     private static List<String> adminAddressArr = null;
 
+    /**
+     *  这里只初始化一些参数赋值
+     */
     public static void init(String adminAddress, String env, String accessToken) {
 
         // valid

@@ -71,7 +71,9 @@ public class XxlConfFactory extends InstantiationAwareBeanPostProcessorAdapter
 
 
 	// ---------------------- post process / xml、annotation ----------------------
-	// 启动的时候，先获取所有加了XxlConf注解的bean，对他们的字段进行取值，然后赋值
+	// 启动的时候，先获取所有加了XxlConf注解的bean的字段，
+	// 然后获取该字段对应的值，
+	// 最后对他们的字段进行取值，然后赋值
 	@Override
 	public boolean postProcessAfterInstantiation(final Object bean, final String beanName) throws BeansException {
 
@@ -97,6 +99,7 @@ public class XxlConfFactory extends InstantiationAwareBeanPostProcessorAdapter
 						refreshBeanField(beanField, confValue, bean);
 
 						// watch
+						// 监控该key的变化，一旦变化，则调用对应的listener进行刷新
 						if (xxlConf.callback()) {
 							BeanRefreshXxlConfListener.addBeanField(confKey, beanField);
 						}

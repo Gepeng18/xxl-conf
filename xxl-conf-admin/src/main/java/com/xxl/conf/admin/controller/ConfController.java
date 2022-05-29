@@ -43,25 +43,26 @@ public class ConfController {
 	@RequestMapping("")
 	public String index(HttpServletRequest request, Model model, String appname){
 
-		List<XxlConfProject> list = xxlConfProjectDao.findAll();
-		if (list==null || list.size()==0) {
+		List<XxlConfProject> allProject = xxlConfProjectDao.findAll();
+		if (allProject==null || allProject.size()==0) {
 			throw new RuntimeException("系统异常，无可用项目");
 		}
 
-		XxlConfProject project = list.get(0);
-		for (XxlConfProject item: list) {
-			if (item.getAppname().equals(appname)) {
-				project = item;
+		// 从所有的project中挑一个和appName一样的project
+		XxlConfProject finalProject = allProject.get(0);
+		for (XxlConfProject project: allProject) {
+			if (project.getAppname().equals(appname)) {
+				finalProject = project;
 			}
 		}
 
 		boolean ifHasProjectPermission = xxlConfNodeService.ifHasProjectPermission(
 				(XxlConfUser) request.getAttribute(LoginService.LOGIN_IDENTITY),
 				(String) request.getAttribute(CURRENT_ENV),
-				project.getAppname());
+				finalProject.getAppname());
 
-		model.addAttribute("ProjectList", list);
-		model.addAttribute("project", project);
+		model.addAttribute("ProjectList", allProject);
+		model.addAttribute("project", finalProject);
 		model.addAttribute("ifHasProjectPermission", ifHasProjectPermission);
 
 		return "conf/conf.index";
@@ -202,6 +203,9 @@ public class ConfController {
 	 * 配置监控 API
 	 *
 	 * 说明：long-polling 接口，主动阻塞一段时间（默认30s）；直至阻塞超时或配置信息变动时响应；
+	 * 主要方式是通过：
+	 * 1、在API接口中，DeferredResult不调用setResult，所以一直阻塞
+	 * 2、当有数据变动时，调用setFileConfData方法同步文件时，会调用setResult()，这时候所有阻塞的都会返回
 	 *
 	 * ------
 	 * 地址格式：{配置中心跟地址}/monitor

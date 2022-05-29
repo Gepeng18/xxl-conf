@@ -14,7 +14,7 @@ public interface XxlConfNodeMsgDao {
 
 	public void add(XxlConfNodeMsg xxlConfNode);
 
-	public List<XxlConfNodeMsg> findMsg(@Param("readedMsgIds") List<Integer> readedMsgIds);
+	public List<XxlConfNodeMsg> findMsgExclude(@Param("readedMsgIds") List<Integer> readedMsgIds);
 
 	public int cleanMessage(@Param("messageTimeout") int messageTimeout);
 

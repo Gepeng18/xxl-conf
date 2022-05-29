@@ -34,7 +34,7 @@
 		)
 	</insert>
 
-	<select id="findMsg" parameterType="java.util.Map" resultMap="xxlConfNodeMsg">
+	<select id="findMsgExclude" parameterType="java.util.Map" resultMap="xxlConfNodeMsg">
 		SELECT <include refid="Base_Column_List" />
 		FROM xxl_conf_node_msg AS t
 		<if test="readedMsgIds != null and readedMsgIds.size() > 0" >

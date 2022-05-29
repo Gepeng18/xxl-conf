@@ -16,6 +16,9 @@ public interface IXxlConfNodeService {
 
 	public boolean ifHasProjectPermission(XxlConfUser loginUser, String loginEnv, String appname);
 
+	/**
+	 * 找到若干个=appname,=loginEnv,like %key% 的 key 和 value 等信息
+	 */
 	public Map<String,Object> pageList(int offset,
 									   int pagesize,
 									   String appname,

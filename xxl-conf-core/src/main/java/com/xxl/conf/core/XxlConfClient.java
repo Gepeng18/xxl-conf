@@ -12,6 +12,11 @@ import com.xxl.conf.core.listener.XxlConfListenerFactory;
  */
 public class XxlConfClient {
 
+	/**
+	 * get conf
+	 * 1、从本地缓存中取
+	 * 2、本地缓存没有，则从远程取
+	 */
 	public static String get(String key, String defaultVal) {
 		return XxlConfLocalCacheConf.get(key, defaultVal);
 	}

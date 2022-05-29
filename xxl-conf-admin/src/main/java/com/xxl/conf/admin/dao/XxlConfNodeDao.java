@@ -23,6 +23,9 @@ public interface XxlConfNodeDao {
 							 @Param("appname") String appname,
 							 @Param("key") String key);
 
+	/**
+	 *  = env and = key
+	 */
 	public int delete(@Param("env") String env, @Param("key") String key);
 
 	public void insert(XxlConfNode xxlConfNode);
