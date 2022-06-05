@@ -12,21 +12,22 @@ import java.util.List;
 @Mapper
 public interface XxlConfUserDao {
 
-    public List<XxlConfUser> pageList(@Param("offset") int offset,
-                                      @Param("pagesize") int pagesize,
-                                      @Param("username") String username,
-                                      @Param("permission") int permission);
-    public int pageListCount(@Param("offset") int offset,
-                             @Param("pagesize") int pagesize,
-                             @Param("username") String username,
-                             @Param("permission") int permission);
+	public List<XxlConfUser> pageList(@Param("offset") int offset,
+									  @Param("pagesize") int pagesize,
+									  @Param("username") String username,
+									  @Param("permission") int permission);
 
-    public int add(XxlConfUser xxlConfUser);
+	public int pageListCount(@Param("offset") int offset,
+							 @Param("pagesize") int pagesize,
+							 @Param("username") String username,
+							 @Param("permission") int permission);
 
-    public int update(XxlConfUser xxlConfUser);
+	public int add(XxlConfUser xxlConfUser);
 
-    public int delete(@Param("username") String username);
+	public int update(XxlConfUser xxlConfUser);
 
-    public XxlConfUser load(@Param("username") String username);
+	public int delete(@Param("username") String username);
+
+	public XxlConfUser load(@Param("username") String username);
 
 }

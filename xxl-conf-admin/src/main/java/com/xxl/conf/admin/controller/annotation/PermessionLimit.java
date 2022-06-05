@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PermessionLimit {
-	
+
 	/**
 	 * 要求用户登录
 	 *

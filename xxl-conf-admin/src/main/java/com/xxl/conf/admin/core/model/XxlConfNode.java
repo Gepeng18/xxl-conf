@@ -4,19 +4,20 @@ import java.util.List;
 
 /**
  * 配置节点
+ *
  * @author xuxueli 2015-9-4 15:26:01
  */
 public class XxlConfNode {
 
 	private String env;
-	private String key;			// 配置Key
-	private String appname; 	// 所属项目AppName
-	private String title; 		// 配置描述
-	private String value;		// 配置Value
+	private String key;            // 配置Key
+	private String appname;    // 所属项目AppName
+	private String title;        // 配置描述
+	private String value;        // 配置Value
 
 	// plugin
 	/*private String zkValue; 				// ZK中配置Value	// TODO, delete*/
-	private List<XxlConfNodeLog> logList;	// 配置变更Log
+	private List<XxlConfNodeLog> logList;    // 配置变更Log
 
 	public String getEnv() {
 		return env;

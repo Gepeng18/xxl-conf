@@ -12,24 +12,24 @@ import java.lang.annotation.*;
 @Documented
 public @interface XxlConf {
 
-    /**
-     * conf key
-     *
-     * @return
-     */
-    String value();
+	/**
+	 * conf key
+	 *
+	 * @return
+	 */
+	String value();
 
-    /**
-     * conf default value
-     *
-     * @return
-     */
-    String defaultValue() default "";
+	/**
+	 * conf default value
+	 *
+	 * @return
+	 */
+	String defaultValue() default "";
 
-    /**
-     *  whether you need a callback refresh, when the value changes.
-     *
-     * @return
-     */
-    boolean callback() default true;
+	/**
+	 * whether you need a callback refresh, when the value changes.
+	 *
+	 * @return
+	 */
+	boolean callback() default true;
 }

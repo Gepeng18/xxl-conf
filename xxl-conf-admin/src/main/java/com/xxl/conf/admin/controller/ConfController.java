@@ -39,18 +39,20 @@ public class ConfController {
 	private XxlConfProjectDao xxlConfProjectDao;
 	@Resource
 	private IXxlConfNodeService xxlConfNodeService;
+	@Value("${xxl.conf.access.token}")
+	private String accessToken;
 
 	@RequestMapping("")
-	public String index(HttpServletRequest request, Model model, String appname){
+	public String index(HttpServletRequest request, Model model, String appname) {
 
 		List<XxlConfProject> allProject = xxlConfProjectDao.findAll();
-		if (allProject==null || allProject.size()==0) {
+		if (allProject == null || allProject.size() == 0) {
 			throw new RuntimeException("系统异常，无可用项目");
 		}
 
 		// 从所有的project中挑一个和appName一样的project
 		XxlConfProject finalProject = allProject.get(0);
-		for (XxlConfProject project: allProject) {
+		for (XxlConfProject project : allProject) {
 			if (project.getAppname().equals(appname)) {
 				finalProject = project;
 			}
@@ -84,11 +86,12 @@ public class ConfController {
 
 	/**
 	 * get
+	 *
 	 * @return
 	 */
 	@RequestMapping("/delete")
 	@ResponseBody
-	public ReturnT<String> delete(HttpServletRequest request, String key){
+	public ReturnT<String> delete(HttpServletRequest request, String key) {
 
 		XxlConfUser xxlConfUser = (XxlConfUser) request.getAttribute(LoginService.LOGIN_IDENTITY);
 		String loginEnv = (String) request.getAttribute(CURRENT_ENV);
@@ -98,11 +101,12 @@ public class ConfController {
 
 	/**
 	 * create/update
+	 *
 	 * @return
 	 */
 	@RequestMapping("/add")
 	@ResponseBody
-	public ReturnT<String> add(HttpServletRequest request, XxlConfNode xxlConfNode){
+	public ReturnT<String> add(HttpServletRequest request, XxlConfNode xxlConfNode) {
 
 		XxlConfUser xxlConfUser = (XxlConfUser) request.getAttribute(LoginService.LOGIN_IDENTITY);
 		String loginEnv = (String) request.getAttribute(CURRENT_ENV);
@@ -111,23 +115,6 @@ public class ConfController {
 		xxlConfNode.setEnv(loginEnv);
 
 		return xxlConfNodeService.add(xxlConfNode, xxlConfUser, loginEnv);
-	}
-	
-	/**
-	 * create/update
-	 * @return
-	 */
-	@RequestMapping("/update")
-	@ResponseBody
-	public ReturnT<String> update(HttpServletRequest request, XxlConfNode xxlConfNode){
-
-		XxlConfUser xxlConfUser = (XxlConfUser) request.getAttribute(LoginService.LOGIN_IDENTITY);
-		String loginEnv = (String) request.getAttribute(CURRENT_ENV);
-
-		// fill env
-		xxlConfNode.setEnv(loginEnv);
-
-		return xxlConfNodeService.update(xxlConfNode, xxlConfUser, loginEnv);
 	}
 
 	/*@RequestMapping("/syncConf")
@@ -144,33 +131,47 @@ public class ConfController {
 
 	// ---------------------- rest api ----------------------
 
-    @Value("${xxl.conf.access.token}")
-    private String accessToken;
+	/**
+	 * create/update
+	 *
+	 * @return
+	 */
+	@RequestMapping("/update")
+	@ResponseBody
+	public ReturnT<String> update(HttpServletRequest request, XxlConfNode xxlConfNode) {
 
+		XxlConfUser xxlConfUser = (XxlConfUser) request.getAttribute(LoginService.LOGIN_IDENTITY);
+		String loginEnv = (String) request.getAttribute(CURRENT_ENV);
+
+		// fill env
+		xxlConfNode.setEnv(loginEnv);
+
+		return xxlConfNodeService.update(xxlConfNode, xxlConfUser, loginEnv);
+	}
 
 	/**
 	 * 配置查询 API
-	 *
+	 * <p>
 	 * 说明：查询配置数据；
-	 *
+	 * <p>
 	 * ------
 	 * 地址格式：{配置中心跟地址}/find
-	 *
+	 * <p>
 	 * 请求参数说明：
-	 *  1、accessToken：请求令牌；
-	 *  2、env：环境标识
-	 *  3、keys：配置Key列表
-	 *
+	 * 1、accessToken：请求令牌；
+	 * 2、env：环境标识
+	 * 3、keys：配置Key列表
+	 * <p>
 	 * 请求数据格式如下，放置在 RequestBody 中，JSON格式：
-	 *
-	 *     {
-	 *         "accessToken" : "xx",
-	 *         "env" : "xx",
-	 *         "keys" : [
-	 *             "key01",
-	 *             "key02"
-	 *         ]
-	 *     }
+	 * <p>
+	 * {
+	 * "accessToken" : "xx",
+	 * "env" : "xx",
+	 * "keys" : [
+	 * "key01",
+	 * "key02"
+	 * ]
+	 * }
 	 *
 	 * @param data
 	 * @return
@@ -178,13 +179,14 @@ public class ConfController {
 	@RequestMapping("/find")
 	@ResponseBody
 	@PermessionLimit(limit = false)
-	public ReturnT<Map<String, String>> find(@RequestBody(required = false) String data){
+	public ReturnT<Map<String, String>> find(@RequestBody(required = false) String data) {
 
 		// parse data
 		XxlConfParamVO confParamVO = null;
 		try {
 			confParamVO = (XxlConfParamVO) JacksonUtil.readValue(data, XxlConfParamVO.class);
-		} catch (Exception e) { }
+		} catch (Exception e) {
+		}
 
 		// parse param
 		String accessToken = null;
@@ -201,30 +203,30 @@ public class ConfController {
 
 	/**
 	 * 配置监控 API
-	 *
+	 * <p>
 	 * 说明：long-polling 接口，主动阻塞一段时间（默认30s）；直至阻塞超时或配置信息变动时响应；
 	 * 主要方式是通过：
 	 * 1、在API接口中，DeferredResult不调用setResult，所以一直阻塞
 	 * 2、当有数据变动时，调用setFileConfData方法同步文件时，会调用setResult()，这时候所有阻塞的都会返回
-	 *
+	 * <p>
 	 * ------
 	 * 地址格式：{配置中心跟地址}/monitor
-	 *
+	 * <p>
 	 * 请求参数说明：
-	 *  1、accessToken：请求令牌；
-	 *  2、env：环境标识
-	 *  3、keys：配置Key列表
-	 *
+	 * 1、accessToken：请求令牌；
+	 * 2、env：环境标识
+	 * 3、keys：配置Key列表
+	 * <p>
 	 * 请求数据格式如下，放置在 RequestBody 中，JSON格式：
-	 *
-	 *     {
-	 *         "accessToken" : "xx",
-	 *         "env" : "xx",
-	 *         "keys" : [
-	 *             "key01",
-	 *             "key02"
-	 *         ]
-	 *     }
+	 * <p>
+	 * {
+	 * "accessToken" : "xx",
+	 * "env" : "xx",
+	 * "keys" : [
+	 * "key01",
+	 * "key02"
+	 * ]
+	 * }
 	 *
 	 * @param data
 	 * @return
@@ -232,13 +234,14 @@ public class ConfController {
 	@RequestMapping("/monitor")
 	@ResponseBody
 	@PermessionLimit(limit = false)
-	public DeferredResult<ReturnT<String>> monitor(@RequestBody(required = false) String data){
+	public DeferredResult<ReturnT<String>> monitor(@RequestBody(required = false) String data) {
 
 		// parse data
 		XxlConfParamVO confParamVO = null;
 		try {
 			confParamVO = (XxlConfParamVO) JacksonUtil.readValue(data, XxlConfParamVO.class);
-		} catch (Exception e) { }
+		} catch (Exception e) {
+		}
 
 		// parse param
 		String accessToken = null;

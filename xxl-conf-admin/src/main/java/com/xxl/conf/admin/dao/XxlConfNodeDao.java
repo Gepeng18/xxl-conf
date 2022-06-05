@@ -17,6 +17,7 @@ public interface XxlConfNodeDao {
 									  @Param("env") String env,
 									  @Param("appname") String appname,
 									  @Param("key") String key);
+
 	public int pageListCount(@Param("offset") int offset,
 							 @Param("pagesize") int pagesize,
 							 @Param("env") String env,
@@ -24,7 +25,7 @@ public interface XxlConfNodeDao {
 							 @Param("key") String key);
 
 	/**
-	 *  = env and = key
+	 * = env and = key
 	 */
 	public int delete(@Param("env") String env, @Param("key") String key);
 
@@ -33,5 +34,5 @@ public interface XxlConfNodeDao {
 	public XxlConfNode load(@Param("env") String env, @Param("key") String key);
 
 	public int update(XxlConfNode xxlConfNode);
-	
+
 }

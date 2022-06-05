@@ -10,13 +10,14 @@ import com.xxl.conf.core.exception.XxlConfException;
  */
 public final class FieldReflectionUtil {
 
-	private FieldReflectionUtil(){}
+	private FieldReflectionUtil() {
+	}
 
 	public static Byte parseByte(String value) {
 		try {
 			value = value.replaceAll("　", "");
 			return Byte.valueOf(value);
-		} catch(NumberFormatException e) {
+		} catch (NumberFormatException e) {
 			throw new XxlConfException("parseByte but input illegal input=" + value, e);
 		}
 	}
@@ -33,10 +34,10 @@ public final class FieldReflectionUtil {
 	}
 
 	public static Integer parseInt(String value) {
-		try {	
+		try {
 			value = value.replaceAll("　", "");
 			return Integer.valueOf(value);
-		} catch(NumberFormatException e) {
+		} catch (NumberFormatException e) {
 			throw new XxlConfException("parseInt but input illegal input=" + value, e);
 		}
 	}
@@ -45,7 +46,7 @@ public final class FieldReflectionUtil {
 		try {
 			value = value.replaceAll("　", "");
 			return Short.valueOf(value);
-		} catch(NumberFormatException e) {
+		} catch (NumberFormatException e) {
 			throw new XxlConfException("parseShort but input illegal input=" + value, e);
 		}
 	}
@@ -54,7 +55,7 @@ public final class FieldReflectionUtil {
 		try {
 			value = value.replaceAll("　", "");
 			return Long.valueOf(value);
-		} catch(NumberFormatException e) {
+		} catch (NumberFormatException e) {
 			throw new XxlConfException("parseLong but input illegal input=" + value, e);
 		}
 	}
@@ -63,7 +64,7 @@ public final class FieldReflectionUtil {
 		try {
 			value = value.replaceAll("　", "");
 			return Float.valueOf(value);
-		} catch(NumberFormatException e) {
+		} catch (NumberFormatException e) {
 			throw new XxlConfException("parseFloat but input illegal input=" + value, e);
 		}
 	}
@@ -72,7 +73,7 @@ public final class FieldReflectionUtil {
 		try {
 			value = value.replaceAll("　", "");
 			return Double.valueOf(value);
-		} catch(NumberFormatException e) {
+		} catch (NumberFormatException e) {
 			throw new XxlConfException("parseDouble but input illegal input=" + value, e);
 		}
 	}
@@ -88,7 +89,7 @@ public final class FieldReflectionUtil {
 	public static Object parseValue(Class<?> fieldType, String value) {
 		// Class<?> fieldType = field.getType();	// Field field
 
-		if(value==null || value.trim().length()==0)
+		if (value == null || value.trim().length() == 0)
 			return null;
 		value = value.trim();
 
@@ -101,7 +102,7 @@ public final class FieldReflectionUtil {
 		}  else if (Character.class.equals(fieldType) || Character.TYPE.equals(fieldType)) {
 			 return value.toCharArray()[0];
 		}*/ else if (Short.class.equals(fieldType) || Short.TYPE.equals(fieldType)) {
-			 return parseShort(value);
+			return parseShort(value);
 		} else if (Integer.class.equals(fieldType) || Integer.TYPE.equals(fieldType)) {
 			return parseInt(value);
 		} else if (Long.class.equals(fieldType) || Long.TYPE.equals(fieldType)) {

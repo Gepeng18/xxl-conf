@@ -16,10 +16,10 @@ import java.io.IOException;
 
 /**
  * common exception resolver
- *
- * 		1、@ControllerAdvice：扫描所有Controller；
- * 		2、@ControllerAdvice(annotations=RestController.class)：扫描指定注解类型的Controller；
- * 		3、@ControllerAdvice(basePackages={"com.aaa","com.bbb"})：扫描指定package下的Controller
+ * <p>
+ * 1、@ControllerAdvice：扫描所有Controller；
+ * 2、@ControllerAdvice(annotations=RestController.class)：扫描指定注解类型的Controller；
+ * 3、@ControllerAdvice(basePackages={"com.aaa","com.bbb"})：扫描指定package下的Controller
  *
  * @author xuxueli 2016-1-6 19:22:18
  */
@@ -29,13 +29,13 @@ public class WebExceptionResolver implements HandlerExceptionResolver {
 
 	@Override
 	public ModelAndView resolveException(HttpServletRequest request,
-			HttpServletResponse response, Object handler, Exception ex) {
+										 HttpServletResponse response, Object handler, Exception ex) {
 
 		logger.error("WebExceptionResolver:{}", ex);
 
 		// if json
 		boolean isJson = false;
-		HandlerMethod method = (HandlerMethod)handler;
+		HandlerMethod method = (HandlerMethod) handler;
 		ResponseBody responseBody = method.getMethodAnnotation(ResponseBody.class);
 		if (responseBody != null) {
 			isJson = true;
@@ -62,5 +62,5 @@ public class WebExceptionResolver implements HandlerExceptionResolver {
 		}
 
 	}
-	
+
 }

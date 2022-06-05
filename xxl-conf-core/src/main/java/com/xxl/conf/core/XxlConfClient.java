@@ -122,8 +122,8 @@ public class XxlConfClient {
 	 * @param xxlConfListener
 	 * @return
 	 */
-	public static boolean addListener(String key, XxlConfListener xxlConfListener){
+	public static boolean addListener(String key, XxlConfListener xxlConfListener) {
 		return XxlConfListenerFactory.addListener(key, xxlConfListener);
 	}
-	
+
 }

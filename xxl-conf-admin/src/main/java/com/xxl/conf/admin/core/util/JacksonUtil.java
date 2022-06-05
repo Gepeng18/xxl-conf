@@ -14,16 +14,16 @@ import java.util.Map;
 
 /**
  * Jackson util
- *
+ * <p>
  * 1、obj need private and set/get；
  * 2、do not support inner class；
  *
  * @author xuxueli 2015-9-25 18:02:56
  */
 public class JacksonUtil {
+	private final static ObjectMapper objectMapper = new ObjectMapper();
 	private static Logger logger = LoggerFactory.getLogger(JacksonUtil.class);
 
-	private final static ObjectMapper objectMapper = new ObjectMapper();
 	public static ObjectMapper getInstance() {
 		return objectMapper;
 	}
@@ -68,9 +68,11 @@ public class JacksonUtil {
 		}
 		return null;
 	}
+
 	public static <T> T readValueRefer(String jsonStr, Class<T> clazz) {
 		try {
-			return getInstance().readValue(jsonStr, new TypeReference<T>() { });
+			return getInstance().readValue(jsonStr, new TypeReference<T>() {
+			});
 		} catch (JsonParseException e) {
 			logger.error(e.getMessage(), e);
 		} catch (JsonMappingException e) {

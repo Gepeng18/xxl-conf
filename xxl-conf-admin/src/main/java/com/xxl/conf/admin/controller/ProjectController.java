@@ -22,7 +22,7 @@ import java.util.List;
 @Controller
 @RequestMapping("/project")
 public class ProjectController {
-	
+
 	@Resource
 	private XxlConfProjectDao xxlConfProjectDao;
 	@Resource
@@ -41,13 +41,13 @@ public class ProjectController {
 	@RequestMapping("/save")
 	@PermessionLimit(adminuser = true)
 	@ResponseBody
-	public ReturnT<String> save(XxlConfProject xxlConfProject){
+	public ReturnT<String> save(XxlConfProject xxlConfProject) {
 
 		// valid
 		if (StringUtils.isBlank(xxlConfProject.getAppname())) {
 			return new ReturnT<String>(500, "AppName不可为空");
 		}
-		if (xxlConfProject.getAppname().length()<4 || xxlConfProject.getAppname().length()>100) {
+		if (xxlConfProject.getAppname().length() < 4 || xxlConfProject.getAppname().length() > 100) {
 			return new ReturnT<String>(500, "Appname长度限制为4~100");
 		}
 		if (StringUtils.isBlank(xxlConfProject.getTitle())) {
@@ -61,13 +61,13 @@ public class ProjectController {
 		}
 
 		int ret = xxlConfProjectDao.save(xxlConfProject);
-		return (ret>0)?ReturnT.SUCCESS:ReturnT.FAIL;
+		return (ret > 0) ? ReturnT.SUCCESS : ReturnT.FAIL;
 	}
 
 	@RequestMapping("/update")
 	@PermessionLimit(adminuser = true)
 	@ResponseBody
-	public ReturnT<String> update(XxlConfProject xxlConfProject){
+	public ReturnT<String> update(XxlConfProject xxlConfProject) {
 
 		// valid
 		if (StringUtils.isBlank(xxlConfProject.getAppname())) {
@@ -78,13 +78,13 @@ public class ProjectController {
 		}
 
 		int ret = xxlConfProjectDao.update(xxlConfProject);
-		return (ret>0)?ReturnT.SUCCESS:ReturnT.FAIL;
+		return (ret > 0) ? ReturnT.SUCCESS : ReturnT.FAIL;
 	}
 
 	@RequestMapping("/remove")
 	@PermessionLimit(adminuser = true)
 	@ResponseBody
-	public ReturnT<String> remove(String appname){
+	public ReturnT<String> remove(String appname) {
 
 		if (StringUtils.isBlank(appname)) {
 			return new ReturnT<String>(500, "参数AppName非法");
@@ -102,7 +102,7 @@ public class ProjectController {
 		}
 
 		int ret = xxlConfProjectDao.delete(appname);
-		return (ret>0)?ReturnT.SUCCESS:ReturnT.FAIL;
+		return (ret > 0) ? ReturnT.SUCCESS : ReturnT.FAIL;
 	}
 
 }

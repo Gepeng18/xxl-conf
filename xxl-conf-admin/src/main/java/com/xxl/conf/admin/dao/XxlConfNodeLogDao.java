@@ -17,8 +17,8 @@ public interface XxlConfNodeLogDao {
 	public void add(XxlConfNodeLog xxlConfNode);
 
 	/**
-	 * 	这个length参数感觉是保留几条最新的
- 	 */
+	 * 这个length参数感觉是保留几条最新的
+	 */
 	public int deleteTimeout(@Param("env") String env,
 							 @Param("key") String key,
 							 @Param("length") int length);

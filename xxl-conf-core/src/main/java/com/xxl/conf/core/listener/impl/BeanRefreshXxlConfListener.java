@@ -16,65 +16,65 @@ import java.util.concurrent.ConcurrentHashMap;
 public class BeanRefreshXxlConfListener implements XxlConfListener {
 
 
-    // ---------------------- listener ----------------------
+	// ---------------------- listener ----------------------
 
-    // object + field
-    public static class BeanField{
-        private String beanName;
-        private String property;
+	// key : object-field[]
+	private static Map<String, List<BeanField>> key2BeanField = new ConcurrentHashMap<String, List<BeanField>>();
 
-        public BeanField() {
-        }
+	// 就是将key:beanField 进行缓存，下次根据key去更新某些bean字段时，比较方便
+	public static void addBeanField(String key, BeanField beanField) {
+		List<BeanField> beanFieldList = key2BeanField.get(key);
+		if (beanFieldList == null) {
+			beanFieldList = new ArrayList<>();
+			key2BeanField.put(key, beanFieldList);
+		}
+		for (BeanField item : beanFieldList) {
+			if (item.getBeanName().equals(beanField.getBeanName()) && item.getProperty().equals(beanField.getProperty())) {
+				return; // avoid repeat refresh
+			}
+		}
+		beanFieldList.add(beanField);
+	}
 
-        public BeanField(String beanName, String property) {
-            this.beanName = beanName;
-            this.property = property;
-        }
+	@Override
+	public void onChange(String key, String value) throws Exception {
+		List<BeanField> beanFieldList = key2BeanField.get(key);
+		if (beanFieldList != null && beanFieldList.size() > 0) {
+			for (BeanField beanField : beanFieldList) {
+				XxlConfFactory.refreshBeanField(beanField, value, null);
+			}
+		}
+	}
 
-        public String getBeanName() {
-            return beanName;
-        }
+	// ---------------------- onChange ----------------------
 
-        public void setBeanName(String beanName) {
-            this.beanName = beanName;
-        }
+	// object + field
+	public static class BeanField {
+		private String beanName;
+		private String property;
 
-        public String getProperty() {
-            return property;
-        }
+		public BeanField() {
+		}
 
-        public void setProperty(String property) {
-            this.property = property;
-        }
-    }
+		public BeanField(String beanName, String property) {
+			this.beanName = beanName;
+			this.property = property;
+		}
 
-    // key : object-field[]
-    private static Map<String, List<BeanField>> key2BeanField = new ConcurrentHashMap<String, List<BeanField>>();
+		public String getBeanName() {
+			return beanName;
+		}
 
-    // 就是将key:beanField 进行缓存，下次根据key去更新某些bean字段时，比较方便
-    public static void addBeanField(String key, BeanField beanField){
-        List<BeanField> beanFieldList = key2BeanField.get(key);
-        if (beanFieldList == null) {
-            beanFieldList = new ArrayList<>();
-            key2BeanField.put(key, beanFieldList);
-        }
-        for (BeanField item: beanFieldList) {
-            if (item.getBeanName().equals(beanField.getBeanName()) && item.getProperty().equals(beanField.getProperty())) {
-                return; // avoid repeat refresh
-            }
-        }
-        beanFieldList.add(beanField);
-    }
+		public void setBeanName(String beanName) {
+			this.beanName = beanName;
+		}
 
-    // ---------------------- onChange ----------------------
+		public String getProperty() {
+			return property;
+		}
 
-    @Override
-    public void onChange(String key, String value) throws Exception {
-        List<BeanField> beanFieldList = key2BeanField.get(key);
-        if (beanFieldList!=null && beanFieldList.size()>0) {
-            for (BeanField beanField: beanFieldList) {
-                XxlConfFactory.refreshBeanField(beanField, value, null);
-            }
-        }
-    }
+		public void setProperty(String property) {
+			this.property = property;
+		}
+	}
 }

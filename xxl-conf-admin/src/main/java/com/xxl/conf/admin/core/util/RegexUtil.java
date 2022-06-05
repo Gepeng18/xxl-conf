@@ -1,4 +1,5 @@
 package com.xxl.conf.admin.core.util;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,12 +19,12 @@ public class RegexUtil {
 	/**
 	 * regex match
 	 *
-	 * @param regex=	regex str
-	 * @param str		desc str
+	 * @param regex= regex str
+	 * @param str    desc str
 	 * @return
 	 */
 	public static boolean matches(String regex, String str) {
-		if (regex==null || str == null) {
+		if (regex == null || str == null) {
 			return false;
 		}
 
@@ -34,12 +35,12 @@ public class RegexUtil {
 	/**
 	 * regex match
 	 *
-	 * @param pattern	regex pattern
-	 * @param str		desc str
+	 * @param pattern regex pattern
+	 * @param str     desc str
 	 * @return
 	 */
 	public static boolean matches(Pattern pattern, String str) {
-		if (pattern==null || str == null) {
+		if (pattern == null || str == null) {
 			return false;
 		}
 
@@ -57,10 +58,10 @@ public class RegexUtil {
 
 		long start = System.currentTimeMillis();
 		for (int i = 0; i < 10000; i++) {
-			matches(abc_number_line_point_pattern, "abc.123.abc"+i);
+			matches(abc_number_line_point_pattern, "abc.123.abc" + i);
 		}
 		long end = System.currentTimeMillis();
-		System.out.println("cost = " + (end-start));
+		System.out.println("cost = " + (end - start));
 	}
 
 

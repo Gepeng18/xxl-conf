@@ -21,83 +21,84 @@ import java.math.BigInteger;
 @Configuration
 public class LoginService {
 
-    public static final String LOGIN_IDENTITY = "XXL_CONF_LOGIN_IDENTITY";
+	public static final String LOGIN_IDENTITY = "XXL_CONF_LOGIN_IDENTITY";
 
-    @Resource
-    private XxlConfUserDao xxlConfUserDao;
+	@Resource
+	private XxlConfUserDao xxlConfUserDao;
 
-    private String makeToken(XxlConfUser xxlConfUser){
-        String tokenJson = JacksonUtil.writeValueAsString(xxlConfUser);
-        String tokenHex = new BigInteger(tokenJson.getBytes()).toString(16);
-        return tokenHex;
-    }
-    private XxlConfUser parseToken(String tokenHex){
-        XxlConfUser xxlConfUser = null;
-        if (tokenHex != null) {
-            String tokenJson = new String(new BigInteger(tokenHex, 16).toByteArray());      // username_password(md5)
-            xxlConfUser = JacksonUtil.readValue(tokenJson, XxlConfUser.class);
-        }
-        return xxlConfUser;
-    }
+	private String makeToken(XxlConfUser xxlConfUser) {
+		String tokenJson = JacksonUtil.writeValueAsString(xxlConfUser);
+		String tokenHex = new BigInteger(tokenJson.getBytes()).toString(16);
+		return tokenHex;
+	}
 
-    /**
-     * login
-     *
-     * @param response
-     * @param usernameParam
-     * @param passwordParam
-     * @param ifRemember
-     * @return
-     */
-    public ReturnT<String> login(HttpServletResponse response, String usernameParam, String passwordParam, boolean ifRemember){
+	private XxlConfUser parseToken(String tokenHex) {
+		XxlConfUser xxlConfUser = null;
+		if (tokenHex != null) {
+			String tokenJson = new String(new BigInteger(tokenHex, 16).toByteArray());      // username_password(md5)
+			xxlConfUser = JacksonUtil.readValue(tokenJson, XxlConfUser.class);
+		}
+		return xxlConfUser;
+	}
 
-        XxlConfUser xxlConfUser = xxlConfUserDao.load(usernameParam);
-        if (xxlConfUser == null) {
-            return new ReturnT<String>(500, "账号或密码错误");
-        }
+	/**
+	 * login
+	 *
+	 * @param response
+	 * @param usernameParam
+	 * @param passwordParam
+	 * @param ifRemember
+	 * @return
+	 */
+	public ReturnT<String> login(HttpServletResponse response, String usernameParam, String passwordParam, boolean ifRemember) {
 
-        String passwordParamMd5 = DigestUtils.md5DigestAsHex(passwordParam.getBytes());
-        if (!xxlConfUser.getPassword().equals(passwordParamMd5)) {
-            return new ReturnT<String>(500, "账号或密码错误");
-        }
+		XxlConfUser xxlConfUser = xxlConfUserDao.load(usernameParam);
+		if (xxlConfUser == null) {
+			return new ReturnT<String>(500, "账号或密码错误");
+		}
 
-        String loginToken = makeToken(xxlConfUser);
+		String passwordParamMd5 = DigestUtils.md5DigestAsHex(passwordParam.getBytes());
+		if (!xxlConfUser.getPassword().equals(passwordParamMd5)) {
+			return new ReturnT<String>(500, "账号或密码错误");
+		}
 
-        // do login
-        CookieUtil.set(response, LOGIN_IDENTITY, loginToken, ifRemember);
-        return ReturnT.SUCCESS;
-    }
+		String loginToken = makeToken(xxlConfUser);
 
-    /**
-     * logout
-     *
-     * @param request
-     * @param response
-     */
-    public void logout(HttpServletRequest request, HttpServletResponse response){
-        CookieUtil.remove(request, response, LOGIN_IDENTITY);
-    }
+		// do login
+		CookieUtil.set(response, LOGIN_IDENTITY, loginToken, ifRemember);
+		return ReturnT.SUCCESS;
+	}
 
-    /**
-     * logout
-     *
-     * @param request
-     * @return
-     */
-    public XxlConfUser ifLogin(HttpServletRequest request){
-        String cookieToken = CookieUtil.getValue(request, LOGIN_IDENTITY);
-        if (cookieToken != null) {
-            XxlConfUser cookieUser = parseToken(cookieToken);
-            if (cookieUser != null) {
-                XxlConfUser dbUser = xxlConfUserDao.load(cookieUser.getUsername());
-                if (dbUser != null) {
-                    if (cookieUser.getPassword().equals(dbUser.getPassword())) {
-                        return dbUser;
-                    }
-                }
-            }
-        }
-        return null;
-    }
+	/**
+	 * logout
+	 *
+	 * @param request
+	 * @param response
+	 */
+	public void logout(HttpServletRequest request, HttpServletResponse response) {
+		CookieUtil.remove(request, response, LOGIN_IDENTITY);
+	}
+
+	/**
+	 * logout
+	 *
+	 * @param request
+	 * @return
+	 */
+	public XxlConfUser ifLogin(HttpServletRequest request) {
+		String cookieToken = CookieUtil.getValue(request, LOGIN_IDENTITY);
+		if (cookieToken != null) {
+			XxlConfUser cookieUser = parseToken(cookieToken);
+			if (cookieUser != null) {
+				XxlConfUser dbUser = xxlConfUserDao.load(cookieUser.getUsername());
+				if (dbUser != null) {
+					if (cookieUser.getPassword().equals(dbUser.getPassword())) {
+						return dbUser;
+					}
+				}
+			}
+		}
+		return null;
+	}
 
 }

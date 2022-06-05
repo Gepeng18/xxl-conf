@@ -22,11 +22,11 @@ import java.util.List;
 @Controller
 @RequestMapping("/env")
 public class EnvController {
-	
+
 	@Resource
 	private XxlConfEnvDao xxlConfEnvDao;
-    @Resource
-    private XxlConfNodeDao xxlConfNodeDao;
+	@Resource
+	private XxlConfNodeDao xxlConfNodeDao;
 
 
 	@RequestMapping
@@ -42,13 +42,13 @@ public class EnvController {
 	@RequestMapping("/save")
 	@PermessionLimit(adminuser = true)
 	@ResponseBody
-	public ReturnT<String> save(XxlConfEnv xxlConfEnv){
+	public ReturnT<String> save(XxlConfEnv xxlConfEnv) {
 
 		// valid
 		if (StringUtils.isBlank(xxlConfEnv.getEnv())) {
 			return new ReturnT<String>(500, "Env不可为空");
 		}
-		if (xxlConfEnv.getEnv().length()<3 || xxlConfEnv.getEnv().length()>50) {
+		if (xxlConfEnv.getEnv().length() < 3 || xxlConfEnv.getEnv().length() > 50) {
 			return new ReturnT<String>(500, "Env长度限制为4~50");
 		}
 		if (StringUtils.isBlank(xxlConfEnv.getTitle())) {
@@ -62,13 +62,13 @@ public class EnvController {
 		}
 
 		int ret = xxlConfEnvDao.save(xxlConfEnv);
-		return (ret>0)?ReturnT.SUCCESS:ReturnT.FAIL;
+		return (ret > 0) ? ReturnT.SUCCESS : ReturnT.FAIL;
 	}
 
 	@RequestMapping("/update")
 	@PermessionLimit(adminuser = true)
 	@ResponseBody
-	public ReturnT<String> update(XxlConfEnv xxlConfEnv){
+	public ReturnT<String> update(XxlConfEnv xxlConfEnv) {
 
 		// valid
 		if (StringUtils.isBlank(xxlConfEnv.getEnv())) {
@@ -79,23 +79,23 @@ public class EnvController {
 		}
 
 		int ret = xxlConfEnvDao.update(xxlConfEnv);
-		return (ret>0)?ReturnT.SUCCESS:ReturnT.FAIL;
+		return (ret > 0) ? ReturnT.SUCCESS : ReturnT.FAIL;
 	}
 
 	@RequestMapping("/remove")
 	@PermessionLimit(adminuser = true)
 	@ResponseBody
-	public ReturnT<String> remove(String env){
+	public ReturnT<String> remove(String env) {
 
 		if (StringUtils.isBlank(env)) {
 			return new ReturnT<String>(500, "参数Env非法");
 		}
 
-        // valid
-        int list_count = xxlConfNodeDao.pageListCount(0, 10, env, null, null);
-        if (list_count > 0) {
-            return new ReturnT<String>(500, "拒绝删除，该Env下存在配置数据");
-        }
+		// valid
+		int list_count = xxlConfNodeDao.pageListCount(0, 10, env, null, null);
+		if (list_count > 0) {
+			return new ReturnT<String>(500, "拒绝删除，该Env下存在配置数据");
+		}
 
 		// valid can not be empty
 		List<XxlConfEnv> allList = xxlConfEnvDao.findAll();
@@ -104,7 +104,7 @@ public class EnvController {
 		}
 
 		int ret = xxlConfEnvDao.delete(env);
-		return (ret>0)?ReturnT.SUCCESS:ReturnT.FAIL;
+		return (ret > 0) ? ReturnT.SUCCESS : ReturnT.FAIL;
 	}
 
 }

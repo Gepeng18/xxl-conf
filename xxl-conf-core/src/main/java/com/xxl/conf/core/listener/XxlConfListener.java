@@ -7,11 +7,11 @@ package com.xxl.conf.core.listener;
  */
 public interface XxlConfListener {
 
-    /**
-     * invoke when first-use or conf-change
-     *
-     * @param key
-     */
-    public void onChange(String key, String value) throws Exception;
+	/**
+	 * invoke when first-use or conf-change
+	 *
+	 * @param key
+	 */
+	public void onChange(String key, String value) throws Exception;
 
 }

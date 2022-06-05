@@ -5,31 +5,31 @@ package com.xxl.conf.admin.core.model;
  */
 public class XxlConfEnv {
 
-    private String env;         // Env
-    private String title;       // 环境名称
-    private int order;
+	private String env;         // Env
+	private String title;       // 环境名称
+	private int order;
 
-    public String getEnv() {
-        return env;
-    }
+	public String getEnv() {
+		return env;
+	}
 
-    public void setEnv(String env) {
-        this.env = env;
-    }
+	public void setEnv(String env) {
+		this.env = env;
+	}
 
-    public String getTitle() {
-        return title;
-    }
+	public String getTitle() {
+		return title;
+	}
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+	public void setTitle(String title) {
+		this.title = title;
+	}
 
-    public int getOrder() {
-        return order;
-    }
+	public int getOrder() {
+		return order;
+	}
 
-    public void setOrder(int order) {
-        this.order = order;
-    }
+	public void setOrder(int order) {
+		this.order = order;
+	}
 }

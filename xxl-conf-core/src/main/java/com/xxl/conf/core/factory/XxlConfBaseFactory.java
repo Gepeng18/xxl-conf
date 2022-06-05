@@ -22,9 +22,9 @@ public class XxlConfBaseFactory {
 	 */
 	public static void init(String adminAddress, String env, String accessToken, String mirrorfile) {
 		// init
-		XxlConfRemoteConf.init(adminAddress, env, accessToken);	// init remote util
-		XxlConfMirrorConf.init(mirrorfile);			// init mirror util
-		XxlConfLocalCacheConf.init();				// init cache + thread, cycle refresh + monitor
+		XxlConfRemoteConf.init(adminAddress, env, accessToken);    // init remote util
+		XxlConfMirrorConf.init(mirrorfile);            // init mirror util
+		XxlConfLocalCacheConf.init();                // init cache + thread, cycle refresh + monitor
 
 		// init()方法中起了一个守护线程，不停地刷新数据，这里注册了一个listener，一旦某个key被刷新，就被将IOC容器中的bean的field进行更改
 		XxlConfListenerFactory.addListener(null, new BeanRefreshXxlConfListener());    // listener all key change
@@ -35,7 +35,7 @@ public class XxlConfBaseFactory {
 	 * destory
 	 */
 	public static void destroy() {
-		XxlConfLocalCacheConf.destroy();	// destroy
+		XxlConfLocalCacheConf.destroy();    // destroy
 	}
 
 }

@@ -7,18 +7,18 @@ package com.xxl.conf.core.exception;
  */
 public class XxlConfException extends RuntimeException {
 
-    private static final long serialVersionUID = 42L;
+	private static final long serialVersionUID = 42L;
 
-    public XxlConfException(String msg) {
-        super(msg);
-    }
+	public XxlConfException(String msg) {
+		super(msg);
+	}
 
-    public XxlConfException(String msg, Throwable cause) {
-        super(msg, cause);
-    }
+	public XxlConfException(String msg, Throwable cause) {
+		super(msg, cause);
+	}
 
-    public XxlConfException(Throwable cause) {
-        super(cause);
-    }
+	public XxlConfException(Throwable cause) {
+		super(cause);
+	}
 
 }

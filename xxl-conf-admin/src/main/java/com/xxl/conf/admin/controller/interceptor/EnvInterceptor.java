@@ -13,6 +13,7 @@ import java.util.List;
 
 /**
  * push cookies to model as cookieMap
+ *
  * @author xuxueli 2015-12-12 18:09:04
  */
 @Component
@@ -28,15 +29,15 @@ public class EnvInterceptor extends HandlerInterceptorAdapter {
 
 		// env list
 		List<XxlConfEnv> envList = xxlConfEnvDao.findAll();
-		if (envList==null || envList.size()==0) {
+		if (envList == null || envList.size() == 0) {
 			throw new RuntimeException("系统异常，获取Env数据失败");
 		}
 
 		// current env
 		String currentEnv = envList.get(0).getEnv();
 		String currentEnvCookie = CookieUtil.getValue(request, CURRENT_ENV);
-		if (currentEnvCookie!=null && currentEnvCookie.trim().length()>0) {
-			for (XxlConfEnv envItem: envList) {
+		if (currentEnvCookie != null && currentEnvCookie.trim().length() > 0) {
+			for (XxlConfEnv envItem : envList) {
 				if (currentEnvCookie.equals(envItem.getEnv())) {
 					currentEnv = envItem.getEnv();
 				}
@@ -48,5 +49,5 @@ public class EnvInterceptor extends HandlerInterceptorAdapter {
 
 		return super.preHandle(request, response, handler);
 	}
-	
+
 }

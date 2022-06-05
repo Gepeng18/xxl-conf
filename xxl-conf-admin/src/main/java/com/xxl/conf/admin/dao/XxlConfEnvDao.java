@@ -12,14 +12,14 @@ import java.util.List;
 @Mapper
 public interface XxlConfEnvDao {
 
-    public List<XxlConfEnv> findAll();
+	public List<XxlConfEnv> findAll();
 
-    public int save(XxlConfEnv xxlConfEnv);
+	public int save(XxlConfEnv xxlConfEnv);
 
-    public int update(XxlConfEnv xxlConfEnv);
+	public int update(XxlConfEnv xxlConfEnv);
 
-    public int delete(@Param("env") String env);
+	public int delete(@Param("env") String env);
 
-    public XxlConfEnv load(@Param("env") String env);
+	public XxlConfEnv load(@Param("env") String env);
 
 }

@@ -19,6 +19,7 @@ public class ReturnT<T> {
 		this.code = code;
 		this.msg = msg;
 	}
+
 	public ReturnT(T data) {
 		this.code = SUCCESS_CODE;
 		this.data = data;

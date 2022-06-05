@@ -12,14 +12,14 @@ import java.util.List;
 @Mapper
 public interface XxlConfProjectDao {
 
-    public List<XxlConfProject> findAll();
+	public List<XxlConfProject> findAll();
 
-    public int save(XxlConfProject xxlConfProject);
+	public int save(XxlConfProject xxlConfProject);
 
-    public int update(XxlConfProject xxlConfProject);
+	public int update(XxlConfProject xxlConfProject);
 
-    public int delete(@Param("appname") String appname);
+	public int delete(@Param("appname") String appname);
 
-    public XxlConfProject load(@Param("appname") String appname);
+	public XxlConfProject load(@Param("appname") String appname);
 
 }

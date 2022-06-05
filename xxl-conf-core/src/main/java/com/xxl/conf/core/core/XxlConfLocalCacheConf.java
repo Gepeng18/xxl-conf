@@ -28,11 +28,11 @@ public class XxlConfLocalCacheConf {
 	private static Thread refreshThread;
 	private static boolean refreshThreadStop = false;
 
-    /**
-     * 1、将mirror的配置文件的数据读出来，将所有的key从远程再读一遍
-     * 2、将mirror的值，以及从远程读出来的值，全部放到本地缓存中（远程的会把原始内容覆盖）
-     * 3、启动一个守护线程，不停地从admin获key对应的value，如果不相等就更新本地缓存，然后将数据写入mirrorFile
-     */
+	/**
+	 * 1、将mirror的配置文件的数据读出来，将所有的key从远程再读一遍
+	 * 2、将mirror的值，以及从远程读出来的值，全部放到本地缓存中（远程的会把原始内容覆盖）
+	 * 3、启动一个守护线程，不停地从admin获key对应的value，如果不相等就更新本地缓存，然后将数据写入mirrorFile
+	 */
 	public static void init() {
 
 		localCacheRepository = new ConcurrentHashMap<String, CacheNode>();
@@ -93,36 +93,9 @@ public class XxlConfLocalCacheConf {
 	}
 
 	/**
-	 * local cache node
-	 */
-	public static class CacheNode implements Serializable {
-		private static final long serialVersionUID = 42L;
-
-		private String value;
-
-		public CacheNode() {
-		}
-
-		public CacheNode(String value) {
-			this.value = value;
-		}
-
-		public String getValue() {
-			return value;
-		}
-
-		public void setValue(String value) {
-			this.value = value;
-		}
-	}
-
-
-	// ---------------------- util ----------------------
-
-	/**
 	 * refresh Cache And Mirror, with real-time minitor
 	 * 1、守护线程不停地从admin获key对应的value，如果不相等就更新本地缓存
-     * 2、将本地缓存中的数据写入mirror
+	 * 2、将本地缓存中的数据写入mirror
 	 */
 	private static void refreshCacheAndMirror() throws InterruptedException {
 
@@ -172,25 +145,19 @@ public class XxlConfLocalCacheConf {
 	}
 
 
-	// ---------------------- inner api ----------------------
-
-	public enum SET_TYPE {
-		SET,        // first use
-		RELOAD,     // value updated
-		PRELOAD     // pre hot
-	}
+	// ---------------------- util ----------------------
 
 	/**
 	 * set conf (invoke listener)
 	 * 1、设置到本地缓存中
-     * 2、如果是reload，执行 listener
+	 * 2、如果是reload，执行 listener
 	 */
 	private static void set(String key, String value, SET_TYPE optType) {
 		localCacheRepository.put(key, new CacheNode(value));
 		logger.info(">>>>>>>>>> xxl-conf: {}: [{}={}]", optType, key, value);
 
 		// value updated, invoke listener
-        // 如果是reload，执行listener
+		// 如果是reload，执行listener
 		if (optType == SET_TYPE.RELOAD) {
 			XxlConfListenerFactory.onChange(key, value);
 		}
@@ -200,6 +167,9 @@ public class XxlConfLocalCacheConf {
 			refreshThread.interrupt();
 		}
 	}
+
+
+	// ---------------------- inner api ----------------------
 
 	/**
 	 * get conf
@@ -211,6 +181,42 @@ public class XxlConfLocalCacheConf {
 			return cacheNode;
 		}
 		return null;
+	}
+
+	/**
+	 * get conf
+	 * 1、从本地缓存中取
+	 * 2、本地缓存没有，则从远程取
+	 */
+	public static String get(String key, String defaultVal) {
+
+		// level 1: 从本地缓存中取
+		XxlConfLocalCacheConf.CacheNode cacheNode = XxlConfLocalCacheConf.get(key);
+		if (cacheNode != null) {
+			return cacheNode.getValue();
+		}
+
+		// level 2	(get-and-watch, add-local-cache)
+		// 从远程取，并放入本地缓存
+		String remoteData = null;
+		try {
+			remoteData = XxlConfRemoteConf.find(key);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+
+		set(key, remoteData, SET_TYPE.SET);        // support cache null value
+		if (remoteData != null) {
+			return remoteData;
+		}
+
+		return defaultVal;
+	}
+
+	public enum SET_TYPE {
+		SET,        // first use
+		RELOAD,     // value updated
+		PRELOAD     // pre hot
 	}
 
 	/**
@@ -242,33 +248,27 @@ public class XxlConfLocalCacheConf {
 	// ---------------------- api ----------------------
 
 	/**
-	 * get conf
-	 * 1、从本地缓存中取
-	 * 2、本地缓存没有，则从远程取
+	 * local cache node
 	 */
-	public static String get(String key, String defaultVal) {
+	public static class CacheNode implements Serializable {
+		private static final long serialVersionUID = 42L;
 
-		// level 1: 从本地缓存中取
-		XxlConfLocalCacheConf.CacheNode cacheNode = XxlConfLocalCacheConf.get(key);
-		if (cacheNode != null) {
-			return cacheNode.getValue();
+		private String value;
+
+		public CacheNode() {
 		}
 
-		// level 2	(get-and-watch, add-local-cache)
-		// 从远程取，并放入本地缓存
-		String remoteData = null;
-		try {
-			remoteData = XxlConfRemoteConf.find(key);
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+		public CacheNode(String value) {
+			this.value = value;
 		}
 
-		set(key, remoteData, SET_TYPE.SET);        // support cache null value
-		if (remoteData != null) {
-			return remoteData;
+		public String getValue() {
+			return value;
 		}
 
-		return defaultVal;
+		public void setValue(String value) {
+			this.value = value;
+		}
 	}
 
 }
